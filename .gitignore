@@ -1,12 +1,35 @@
-# Gradle files
-.gradle/
-build/
-
-# Local configuration file (sdk path, etc)
-local.properties
-
 # Log/OS Files
 *.log
+
+# Gradle files
+.kotlin
+.gradle
+build/
+**/build/
+!src/**/build/
+
+# Local configuration file (sdk path, etc)
+# Intellij
+*.iml
+xcuserdata
+local.properties
+.idea
+.DS_Store
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+
+# Kotlin Multiplatform
+captures
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+node_modules/
 
 # Android Studio generated files and folders
 captures/
@@ -15,13 +38,6 @@ captures/
 *.aab
 *.apk
 output-metadata.json
-
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
 
 # Keystore files
 *.jks
