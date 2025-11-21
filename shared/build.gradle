@@ -1,0 +1,52 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+  alias(libs.plugins.kotlinMultiplatform)
+  alias(libs.plugins.androidLibrary)
+}
+
+kotlin {
+  androidTarget {
+    compilerOptions {
+      jvmTarget = JvmTarget.JVM_11
+    }
+  }
+
+  iosArm64()
+  iosSimulatorArm64()
+
+  jvm()
+
+  js {
+    browser()
+  }
+
+  wasmJs {
+    browser()
+  }
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        // put your Multiplatform dependencies here
+      }
+    }
+    commonTest {
+      dependencies {
+        implementation libs.kotlin.test
+      }
+    }
+  }
+}
+
+android {
+  namespace = "com.greenmiststudios.zone.shared"
+  compileSdk = libs.versions.android.compileSdk.get().toInteger()
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+  defaultConfig {
+    minSdk = libs.versions.android.minSdk.get().toInteger()
+  }
+}
