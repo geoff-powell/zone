@@ -15,6 +15,7 @@ jobs:
     uses: ./.github/workflows/build-number.yml
 
   build-debug:
+    needs: build-number
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +35,7 @@ jobs:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Build with Gradle
-        run: ./gradlew composeApp:assembleDebug -Pbuild-numeber=${{ needs.build-number.outputs.build-number }}
+        run: ./gradlew composeApp:assembleDebug -Pbuild-number=${{ needs.build-number.outputs.build-number }}
 
       - name: Upload App
         uses: actions/upload-artifact@v4
