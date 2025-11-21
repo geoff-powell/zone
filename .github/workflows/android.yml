@@ -43,6 +43,7 @@ jobs:
           path: ${{ github.workspace }}/**/build/**/*.apk
 
   build-release:
+    needs: build-number
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
