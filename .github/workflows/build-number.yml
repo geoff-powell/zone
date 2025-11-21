@@ -36,4 +36,7 @@ jobs:
           INPUT_GITHUB_TOKEN: ${{ inputs.token }}
           INPUT_SHA: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
         run: |
-          ./scripts/build-number.sh
+          # Inline build number generation since ./scripts/build-number.sh does not exist
+          # Example: use the number of commits as the build number
+          BUILD_NUMBER=$(git rev-list --count HEAD)
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_OUTPUT
