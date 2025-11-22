@@ -19,17 +19,18 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(text = "Zone", fontSize = 26.sp)
-            Spacer(Modifier.height(16.dp))
-        }
+  MaterialTheme {
+    Column(
+      modifier =
+        Modifier
+          .background(MaterialTheme.colorScheme.primaryContainer)
+          .safeContentPadding()
+          .fillMaxSize()
+          .padding(16.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      Text(text = "Zone", fontSize = 26.sp)
+      Spacer(Modifier.height(16.dp))
     }
+  }
 }

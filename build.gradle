@@ -9,4 +9,19 @@ plugins {
   alias(libs.plugins.kotlinJvm) apply false
   alias(libs.plugins.kotlinMultiplatform) apply false
   alias(libs.plugins.ktor) apply false
+  alias(libs.plugins.spotless)
+}
+
+subprojects {
+  apply plugin: "com.diffplug.spotless"
+
+  spotless {
+    kotlin {
+      ktlint()
+    }
+    kotlinGradle {
+      target("*.gradle.kts")
+      ktlint()
+    }
+  }
 }
