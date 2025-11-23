@@ -24,6 +24,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'zulu'
+          cache: gradle
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v3
