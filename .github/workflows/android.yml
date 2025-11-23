@@ -13,6 +13,8 @@ concurrency:
 jobs:
   build-number:
     uses: ./.github/workflows/build-number.yml
+    with:
+      token: ${{ secrets.GITHUB_TOKEN }}
 
   build-debug:
     needs: build-number
