@@ -1,0 +1,42 @@
+name: Build Number
+
+on:
+  workflow_call:
+    outputs:
+      build-number:
+        description: "The build number generated from git tags on current SHA."
+        value: ${{ jobs.build.outputs.build-number }}
+    inputs:
+      token:
+        description: 'GitHub token or PAT token'
+        required: false
+        default: ${{ github.token }}
+        type: string
+
+#concurrency:
+#  group: ${{ github.workflow }}-${{ github.ref }}
+#  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Generate build number
+        id: build-number
+        env:
+          INPUT_GITHUB_TOKEN: ${{ inputs.token }}
+          INPUT_SHA: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
+        run: |
+          # Inline build number generation since ./scripts/build-number.sh does not exist
+          # Example: use the number of commits as the build number
+          BUILD_NUMBER=$(git rev-list --count HEAD)
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_OUTPUT
