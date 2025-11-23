@@ -10,8 +10,6 @@ on:
   push:
     branches:
       - main
-      - gpowell/actions-updates
-
 jobs:
   qodana:
     runs-on: ubuntu-latest
