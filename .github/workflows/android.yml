@@ -63,7 +63,7 @@ jobs:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Build with Gradle
-        run: ./gradlew composeApp:assembleRelease -Pbuild-numeber=${{ needs.build-number.outputs.build-number }}
+        run: ./gradlew composeApp:assembleRelease -Pbuild-number=${{ needs.build-number.outputs.build-number }}
 
       - name: Upload App
         uses: actions/upload-artifact@v4
