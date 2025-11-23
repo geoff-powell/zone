@@ -36,7 +36,7 @@ if [[ -z "${CURRENT_BUILD_NUMBER}" ]]; then
     GITHUB_URL_PROTOCOL=$(echo "$GITHUB_SERVER_URL" | sed -e 's,^\(.*://\).*,\1,g')
     GITHUB_URL_HOST=$(echo "$GITHUB_SERVER_URL" | sed -e 's,^.*://\(.*\),\1,g')
 
-    echo "Pushing build number tag build-number-$CURRENT_BUILD_NUMBER to Github ($INPUT_SHA)."
+    echo "Pushing build number tag build-number-$CURRENT_BUILD_NUMBER to GitHub ($INPUT_SHA)."
     git push "${GITHUB_URL_PROTOCOL}${INPUT_GITHUB_TOKEN}@${GITHUB_URL_HOST}/${GITHUB_REPOSITORY}.git" --tags
   else
     CURRENT_BUILD_NUMBER=$(getBuildNumberTag "$INPUT_SHA")
