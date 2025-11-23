@@ -13,8 +13,6 @@ concurrency:
 jobs:
   build-number:
     uses: ./.github/workflows/build-number.yml
-    with:
-      token: ${{ secrets.GITHUB_TOKEN }}
 
   check:
     runs-on: ubuntu-latest
