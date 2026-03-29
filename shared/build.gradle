@@ -29,7 +29,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation libs.kotlinx.coroutinesCore
+        api libs.kotlinx.coroutinesCore
         implementation libs.kotlinx.datetime
         implementation libs.sqldelight.runtime
         implementation libs.sqldelight.coroutinesExtensions
