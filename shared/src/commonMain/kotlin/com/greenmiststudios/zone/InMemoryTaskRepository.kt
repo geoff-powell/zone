@@ -12,16 +12,18 @@ class InMemoryTaskRepository : TaskRepository {
 
   override fun getTasks(): Flow<List<Task>> = _tasks.asStateFlow()
 
-  override suspend fun addTask(title: String, description: String?) {
+  override suspend fun addTask(title: String, description: String?, priority: Priority) {
     _tasks.update { current ->
-      current +
-        Task(
-          id = nextId++,
-          title = title,
-          description = description,
-          isCompleted = false,
-          createdAt = Clock.System.now().toEpochMilliseconds(),
-        )
+      (current +
+          Task(
+            id = nextId++,
+            title = title,
+            description = description,
+            isCompleted = false,
+            priority = priority,
+            createdAt = Clock.System.now().toEpochMilliseconds(),
+          ))
+        .sortedWith(compareBy({ it.isCompleted }, { it.priority.value }))
     }
   }
 
@@ -31,7 +33,9 @@ class InMemoryTaskRepository : TaskRepository {
 
   override suspend fun toggleTask(id: Long, isCompleted: Boolean) {
     _tasks.update { current ->
-      current.map { task -> if (task.id == id) task.copy(isCompleted = isCompleted) else task }
+      current
+        .map { task -> if (task.id == id) task.copy(isCompleted = isCompleted) else task }
+        .sortedWith(compareBy({ it.isCompleted }, { it.priority.value }))
     }
   }
 }

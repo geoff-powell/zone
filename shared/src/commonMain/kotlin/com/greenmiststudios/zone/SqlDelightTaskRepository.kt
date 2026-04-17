@@ -20,12 +20,13 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
       .mapToList(Dispatchers.Default)
       .map { rows -> rows.map { it.toTask() } }
 
-  override suspend fun addTask(title: String, description: String?) {
+  override suspend fun addTask(title: String, description: String?, priority: Priority) {
     withContext(Dispatchers.Default) {
       queries.insertTask(
         title = title,
         description = description,
         is_completed = 0L,
+        priority = priority.value,
         created_at = Clock.System.now().toEpochMilliseconds(),
       )
     }
@@ -49,6 +50,7 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
       title = title,
       description = description,
       isCompleted = is_completed != 0L,
+      priority = Priority.fromValue(priority),
       createdAt = created_at,
     )
 }

@@ -1,24 +1,7 @@
 package com.greenmiststudios.zone
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,118 +9,73 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.greenmiststudios.zone.ui.AddTaskSheet
+import com.greenmiststudios.zone.ui.FocusScreen
+import com.greenmiststudios.zone.ui.HomeScreen
+import com.greenmiststudios.zone.ui.ZoneTheme
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Composable
-fun App(taskRepository: TaskRepository) {
-  MaterialTheme {
-    Surface(
-      modifier = Modifier.fillMaxSize(),
-      color = MaterialTheme.colorScheme.background,
-    ) {
-      TaskScreen(taskRepository)
-    }
-  }
+private sealed interface Screen {
+  data object Home : Screen
+  data object Focus : Screen
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TaskScreen(taskRepository: TaskRepository) {
+fun App(taskRepository: TaskRepository) {
   val tasks by taskRepository.getTasks().collectAsState(initial = emptyList())
   val scope = rememberCoroutineScope()
-  var newTaskTitle by remember { mutableStateOf("") }
+  var screen by remember { mutableStateOf<Screen>(Screen.Home) }
+  var showAddSheet by remember { mutableStateOf(false) }
+  val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-  Column(
-    modifier =
-      Modifier
-        .safeContentPadding()
-        .fillMaxSize()
-        .padding(horizontal = 16.dp),
-  ) {
-    Spacer(Modifier.height(16.dp))
-    Text(text = "Zone", fontSize = 26.sp, color = MaterialTheme.colorScheme.primary)
-    Spacer(Modifier.height(16.dp))
+  val incomplete = tasks.filter { !it.isCompleted }.sortedWith(compareBy({ it.priority.value }))
 
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-      OutlinedTextField(
-        value = newTaskTitle,
-        onValueChange = { newTaskTitle = it },
-        label = { Text("New task") },
-        singleLine = true,
-        modifier = Modifier.weight(1f),
-      )
-      Button(
-        onClick = {
-          val title = newTaskTitle.trim()
-          if (title.isNotEmpty()) {
-            scope.launch { taskRepository.addTask(title) }
-            newTaskTitle = ""
-          }
-        },
-      ) {
-        Text("Add")
+  ZoneTheme {
+    when (val currentScreen = screen) {
+      is Screen.Home -> {
+        HomeScreen(
+          tasks = tasks,
+          onToggle = { task ->
+            scope.launch { taskRepository.toggleTask(task.id, !task.isCompleted) }
+          },
+          onDelete = { task -> scope.launch { taskRepository.deleteTask(task.id) } },
+          onAddClick = { showAddSheet = true },
+          onFocusClick = { if (incomplete.isNotEmpty()) screen = Screen.Focus },
+        )
       }
-    }
-
-    Spacer(Modifier.height(8.dp))
-    HorizontalDivider()
-
-    if (tasks.isEmpty()) {
-      Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-      ) {
-        Text("No tasks yet. Add one above!", color = MaterialTheme.colorScheme.onSurfaceVariant)
-      }
-    } else {
-      LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(tasks, key = { it.id }) { task ->
-          TaskItem(
-            task = task,
-            onToggle = { scope.launch { taskRepository.toggleTask(task.id, !task.isCompleted) } },
-            onDelete = { scope.launch { taskRepository.deleteTask(task.id) } },
+      is Screen.Focus -> {
+        val focusTask = incomplete.firstOrNull()
+        if (focusTask == null) {
+          screen = Screen.Home
+        } else {
+          val nextTask = incomplete.getOrNull(1)
+          FocusScreen(
+            task = focusTask,
+            nextTask = nextTask,
+            onComplete = {
+              scope.launch { taskRepository.toggleTask(focusTask.id, true) }
+            },
+            onSkip = {
+              val nextIndex = incomplete.indexOf(focusTask) + 1
+              if (nextIndex >= incomplete.size) screen = Screen.Home
+            },
+            onBack = { screen = Screen.Home },
           )
-          HorizontalDivider()
         }
       }
     }
-  }
-}
 
-@Composable
-private fun TaskItem(
-  task: Task,
-  onToggle: () -> Unit,
-  onDelete: () -> Unit,
-) {
-  Row(
-    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-    verticalAlignment = Alignment.CenterVertically,
-  ) {
-    Checkbox(checked = task.isCompleted, onCheckedChange = { onToggle() })
-    Text(
-      text = task.title,
-      modifier = Modifier.weight(1f),
-      textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
-      color =
-        if (task.isCompleted) {
-          MaterialTheme.colorScheme.onSurfaceVariant
-        } else {
-          MaterialTheme.colorScheme.onSurface
+    if (showAddSheet) {
+      AddTaskSheet(
+        sheetState = sheetState,
+        onDismiss = { showAddSheet = false },
+        onAdd = { title, description, priority ->
+          scope.launch { taskRepository.addTask(title, description, priority) }
+          showAddSheet = false
         },
-    )
-    TextButton(onClick = onDelete) {
-      Text("Delete", color = MaterialTheme.colorScheme.error)
+      )
     }
   }
 }

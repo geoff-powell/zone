@@ -5,5 +5,16 @@ data class Task(
   val title: String,
   val description: String?,
   val isCompleted: Boolean,
+  val priority: Priority,
   val createdAt: Long,
 )
+
+enum class Priority(val value: Long) {
+  HIGH(0L),
+  MEDIUM(1L),
+  LOW(2L);
+
+  companion object {
+    fun fromValue(value: Long): Priority = entries.firstOrNull { it.value == value } ?: MEDIUM
+  }
+}
