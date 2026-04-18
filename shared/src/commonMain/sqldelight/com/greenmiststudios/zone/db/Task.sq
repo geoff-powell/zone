@@ -4,24 +4,32 @@ CREATE TABLE IF NOT EXISTS task (
   description TEXT,
   is_completed INTEGER NOT NULL DEFAULT 0,
   priority INTEGER NOT NULL DEFAULT 1,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  due_date INTEGER,
+  sort_order INTEGER NOT NULL DEFAULT 0
 );
 
 selectAll:
 SELECT * FROM task
-ORDER BY is_completed ASC, priority ASC, created_at DESC;
+ORDER BY is_completed ASC, priority ASC, sort_order ASC, created_at DESC;
 
 selectIncomplete:
 SELECT * FROM task
 WHERE is_completed = 0
-ORDER BY priority ASC, created_at DESC;
+ORDER BY priority ASC, sort_order ASC, created_at DESC;
 
 insertTask:
-INSERT INTO task(title, description, is_completed, priority, created_at)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO task(title, description, is_completed, priority, created_at, due_date, sort_order)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 
 deleteTask:
 DELETE FROM task WHERE id = ?;
 
 updateCompleted:
 UPDATE task SET is_completed = ? WHERE id = ?;
+
+updateTask:
+UPDATE task SET title = ?, description = ?, priority = ?, due_date = ? WHERE id = ?;
+
+updateSortOrder:
+UPDATE task SET sort_order = ? WHERE id = ?;

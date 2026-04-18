@@ -39,6 +39,48 @@ import com.greenmiststudios.zone.Priority
 import com.greenmiststudios.zone.Task
 
 @Composable
+fun AllDoneScreen(onBack: () -> Unit) {
+  Column(
+    modifier =
+      Modifier.fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)
+        .safeContentPadding()
+        .padding(horizontal = 32.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+  ) {
+    Text("🎉", fontSize = 72.sp)
+    Spacer(Modifier.height(24.dp))
+    Text(
+      text = "All done!",
+      fontSize = 32.sp,
+      fontWeight = FontWeight.Bold,
+      color = MaterialTheme.colorScheme.onSurface,
+      textAlign = TextAlign.Center,
+    )
+    Spacer(Modifier.height(8.dp))
+    Text(
+      text = "You crushed it. Time for a break.",
+      style = MaterialTheme.typography.bodyLarge,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      textAlign = TextAlign.Center,
+    )
+    Spacer(Modifier.height(40.dp))
+    Button(
+      onClick = onBack,
+      shape = RoundedCornerShape(14.dp),
+      colors =
+        ButtonDefaults.buttonColors(
+          containerColor = MaterialTheme.colorScheme.primaryContainer,
+          contentColor = MaterialTheme.colorScheme.primary,
+        ),
+    ) {
+      Text("Back to Home", fontWeight = FontWeight.SemiBold)
+    }
+  }
+}
+
+@Composable
 fun FocusScreen(
   task: Task,
   nextTask: Task?,

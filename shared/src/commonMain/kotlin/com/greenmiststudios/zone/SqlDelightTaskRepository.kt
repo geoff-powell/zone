@@ -20,7 +20,12 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
       .mapToList(Dispatchers.Default)
       .map { rows -> rows.map { it.toTask() } }
 
-  override suspend fun addTask(title: String, description: String?, priority: Priority) {
+  override suspend fun addTask(
+    title: String,
+    description: String?,
+    priority: Priority,
+    dueDate: Long?,
+  ) {
     withContext(Dispatchers.Default) {
       queries.insertTask(
         title = title,
@@ -28,20 +33,36 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
         is_completed = 0L,
         priority = priority.value,
         created_at = Clock.System.now().toEpochMilliseconds(),
+        due_date = dueDate,
+        sort_order = 0L,
       )
     }
   }
 
-  override suspend fun deleteTask(id: Long) {
+  override suspend fun editTask(
+    id: Long,
+    title: String,
+    description: String?,
+    priority: Priority,
+    dueDate: Long?,
+  ) {
     withContext(Dispatchers.Default) {
-      queries.deleteTask(id)
+      queries.updateTask(title, description, priority.value, dueDate, id)
     }
+  }
+
+  override suspend fun deleteTask(id: Long) {
+    withContext(Dispatchers.Default) { queries.deleteTask(id) }
   }
 
   override suspend fun toggleTask(id: Long, isCompleted: Boolean) {
     withContext(Dispatchers.Default) {
       queries.updateCompleted(if (isCompleted) 1L else 0L, id)
     }
+  }
+
+  override suspend fun updateSortOrder(id: Long, sortOrder: Long) {
+    withContext(Dispatchers.Default) { queries.updateSortOrder(sortOrder, id) }
   }
 
   private fun DbTask.toTask() =
@@ -52,5 +73,7 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
       isCompleted = is_completed != 0L,
       priority = Priority.fromValue(priority),
       createdAt = created_at,
+      dueDate = due_date,
+      sortOrder = sort_order,
     )
 }

@@ -12,8 +12,14 @@ class InMemoryTaskRepository : TaskRepository {
 
   override fun getTasks(): Flow<List<Task>> = _tasks.asStateFlow()
 
-  override suspend fun addTask(title: String, description: String?, priority: Priority) {
+  override suspend fun addTask(
+    title: String,
+    description: String?,
+    priority: Priority,
+    dueDate: Long?,
+  ) {
     _tasks.update { current ->
+      val sortOrder = current.count { it.priority == priority && !it.isCompleted }.toLong()
       (current +
           Task(
             id = nextId++,
@@ -22,8 +28,33 @@ class InMemoryTaskRepository : TaskRepository {
             isCompleted = false,
             priority = priority,
             createdAt = Clock.System.now().toEpochMilliseconds(),
+            dueDate = dueDate,
+            sortOrder = sortOrder,
           ))
-        .sortedWith(compareBy({ it.isCompleted }, { it.priority.value }))
+        .taskOrder()
+    }
+  }
+
+  override suspend fun editTask(
+    id: Long,
+    title: String,
+    description: String?,
+    priority: Priority,
+    dueDate: Long?,
+  ) {
+    _tasks.update { current ->
+      current
+        .map { task ->
+          if (task.id == id)
+            task.copy(
+              title = title,
+              description = description,
+              priority = priority,
+              dueDate = dueDate,
+            )
+          else task
+        }
+        .taskOrder()
     }
   }
 
@@ -35,7 +66,18 @@ class InMemoryTaskRepository : TaskRepository {
     _tasks.update { current ->
       current
         .map { task -> if (task.id == id) task.copy(isCompleted = isCompleted) else task }
-        .sortedWith(compareBy({ it.isCompleted }, { it.priority.value }))
+        .taskOrder()
     }
   }
+
+  override suspend fun updateSortOrder(id: Long, sortOrder: Long) {
+    _tasks.update { current ->
+      current.map { task -> if (task.id == id) task.copy(sortOrder = sortOrder) else task }
+    }
+  }
+
+  private fun List<Task>.taskOrder() =
+    sortedWith(
+      compareBy({ it.isCompleted }, { it.priority.value }, { it.sortOrder }, { it.createdAt })
+    )
 }

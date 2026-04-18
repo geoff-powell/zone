@@ -1,6 +1,8 @@
 package com.greenmiststudios.zone.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -14,14 +16,18 @@ val ZoneSurface = Color(0xFFFFFFFF)
 
 val PriorityHigh = Color(0xFFEF4444)
 val PriorityHighContainer = Color(0xFFFFEDED)
+val PriorityHighContainerDark = Color(0xFF3D1515)
 val PriorityMedium = Color(0xFFF59E0B)
 val PriorityMediumContainer = Color(0xFFFFF8E1)
+val PriorityMediumContainerDark = Color(0xFF3D2E00)
 val PriorityLow = Color(0xFF10B981)
 val PriorityLowContainer = Color(0xFFECFDF5)
+val PriorityLowContainerDark = Color(0xFF0D2E1F)
 val PriorityCompleted = Color(0xFF9CA3AF)
 val PriorityCompletedContainer = Color(0xFFF3F4F6)
+val PriorityCompletedContainerDark = Color(0xFF1F2023)
 
-private val ZoneColorScheme =
+private val ZoneLightColorScheme =
   lightColorScheme(
     primary = ZoneIndigo,
     onPrimary = Color.White,
@@ -39,7 +45,29 @@ private val ZoneColorScheme =
     error = PriorityHigh,
   )
 
+private val ZoneDarkColorScheme =
+  darkColorScheme(
+    primary = Color(0xFF8B8FFF),
+    onPrimary = Color(0xFF1A1D6E),
+    primaryContainer = Color(0xFF2D3092),
+    onPrimaryContainer = Color(0xFFBDBFFF),
+    secondary = Color(0xFFBB86FC),
+    onSecondary = Color(0xFF1A0050),
+    background = Color(0xFF0F0F1A),
+    onBackground = Color(0xFFE8E8F5),
+    surface = Color(0xFF1A1A2E),
+    onSurface = Color(0xFFE8E8F5),
+    surfaceVariant = Color(0xFF252538),
+    onSurfaceVariant = Color(0xFFAAAAAC),
+    outline = Color(0xFF3D3D5C),
+    error = Color(0xFFFF7575),
+  )
+
 @Composable
 fun ZoneTheme(content: @Composable () -> Unit) {
-  MaterialTheme(colorScheme = ZoneColorScheme, content = content)
+  val isDark = isSystemInDarkTheme()
+  MaterialTheme(
+    colorScheme = if (isDark) ZoneDarkColorScheme else ZoneLightColorScheme,
+    content = content,
+  )
 }

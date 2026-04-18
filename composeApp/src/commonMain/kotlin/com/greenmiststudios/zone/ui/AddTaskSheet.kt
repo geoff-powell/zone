@@ -20,12 +20,16 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,17 +45,45 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.greenmiststudios.zone.Priority
+import com.greenmiststudios.zone.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskSheet(
+  task: Task? = null,
   onDismiss: () -> Unit,
-  onAdd: (title: String, description: String?, priority: Priority) -> Unit,
+  onSave: (title: String, description: String?, priority: Priority, dueDate: Long?) -> Unit,
   sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
-  var title by remember { mutableStateOf("") }
-  var description by remember { mutableStateOf("") }
-  var selectedPriority by remember { mutableStateOf(Priority.MEDIUM) }
+  val isEditMode = task != null
+  var title by remember(task?.id) { mutableStateOf(task?.title ?: "") }
+  var description by remember(task?.id) { mutableStateOf(task?.description ?: "") }
+  var selectedPriority by remember(task?.id) { mutableStateOf(task?.priority ?: Priority.MEDIUM) }
+  var selectedDueDate by remember(task?.id) { mutableStateOf(task?.dueDate) }
+  var showDatePicker by remember { mutableStateOf(false) }
+
+  if (showDatePicker) {
+    val datePickerState =
+      rememberDatePickerState(initialSelectedDateMillis = selectedDueDate)
+    DatePickerDialog(
+      onDismissRequest = { showDatePicker = false },
+      confirmButton = {
+        TextButton(
+          onClick = {
+            selectedDueDate = datePickerState.selectedDateMillis
+            showDatePicker = false
+          }
+        ) {
+          Text("OK")
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+      },
+    ) {
+      DatePicker(state = datePickerState)
+    }
+  }
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,
@@ -63,7 +95,7 @@ fun AddTaskSheet(
       modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).imePadding(),
     ) {
       Text(
-        text = "New Task",
+        text = if (isEditMode) "Edit Task" else "New Task",
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface,
@@ -99,7 +131,12 @@ fun AddTaskSheet(
           KeyboardActions(
             onDone = {
               if (title.isNotBlank()) {
-                onAdd(title.trim(), description.trim().ifBlank { null }, selectedPriority)
+                onSave(
+                  title.trim(),
+                  description.trim().ifBlank { null },
+                  selectedPriority,
+                  selectedDueDate,
+                )
               }
             }
           ),
@@ -126,12 +163,25 @@ fun AddTaskSheet(
         }
       }
 
+      Spacer(Modifier.height(16.dp))
+
+      DueDateRow(
+        dueDate = selectedDueDate,
+        onPickDate = { showDatePicker = true },
+        onClearDate = { selectedDueDate = null },
+      )
+
       Spacer(Modifier.height(24.dp))
 
       Button(
         onClick = {
           if (title.isNotBlank()) {
-            onAdd(title.trim(), description.trim().ifBlank { null }, selectedPriority)
+            onSave(
+              title.trim(),
+              description.trim().ifBlank { null },
+              selectedPriority,
+              selectedDueDate,
+            )
           }
         },
         enabled = title.isNotBlank(),
@@ -145,10 +195,54 @@ fun AddTaskSheet(
             disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
           ),
       ) {
-        Text("Add Task", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+        Text(
+          if (isEditMode) "Save Changes" else "Add Task",
+          fontWeight = FontWeight.SemiBold,
+          fontSize = 16.sp,
+        )
       }
 
       Spacer(Modifier.height(24.dp))
+    }
+  }
+}
+
+@Composable
+private fun DueDateRow(dueDate: Long?, onPickDate: () -> Unit, onClearDate: () -> Unit) {
+  Row(verticalAlignment = Alignment.CenterVertically) {
+    TextButton(
+      onClick = onPickDate,
+      shape = RoundedCornerShape(10.dp),
+    ) {
+      Text(
+        text = if (dueDate != null) "📅 ${formatDueDateShort(dueDate)}" else "📅 Add due date",
+        style = MaterialTheme.typography.bodyMedium,
+        color =
+          if (dueDate != null) MaterialTheme.colorScheme.primary
+          else MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
+    if (dueDate != null) {
+      Spacer(Modifier.width(4.dp))
+      TextButton(onClick = onClearDate) {
+        Text("✕", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+      }
+    }
+  }
+}
+
+private fun formatDueDateShort(epochMillis: Long): String {
+  val tz = kotlinx.datetime.TimeZone.currentSystemDefault()
+  val date =
+    kotlinx.datetime.Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(tz).date
+  val today = kotlinx.datetime.Clock.System.now().toLocalDateTime(tz).date
+  val tomorrow = today.plus(kotlinx.datetime.DatePeriod(days = 1))
+  return when (date) {
+    today -> "Today"
+    tomorrow -> "Tomorrow"
+    else -> {
+      val m = date.month.name
+      "${m[0]}${m.substring(1).lowercase()} ${date.dayOfMonth}"
     }
   }
 }

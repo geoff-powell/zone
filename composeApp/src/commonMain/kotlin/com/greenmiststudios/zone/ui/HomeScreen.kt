@@ -3,6 +3,8 @@ package com.greenmiststudios.zone.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,36 +28,54 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.icons.Icons
 import androidx.compose.material3.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.greenmiststudios.zone.Priority
 import com.greenmiststudios.zone.Task
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
   tasks: List<Task>,
   onToggle: (Task) -> Unit,
   onDelete: (Task) -> Unit,
+  onEdit: (Task) -> Unit,
   onAddClick: () -> Unit,
   onFocusClick: () -> Unit,
+  onMoveUp: (Task) -> Unit,
+  onMoveDown: (Task) -> Unit,
 ) {
   val total = tasks.size
   val done = tasks.count { it.isCompleted }
@@ -95,7 +115,15 @@ fun HomeScreen(
           if (group.isNotEmpty()) {
             item { PrioritySectionHeader(priority) }
             items(group, key = { it.id }) { task ->
-              TaskCard(task = task, onToggle = { onToggle(task) }, onDelete = { onDelete(task) })
+              SwipeToDeleteWrapper(onDelete = { onDelete(task) }) {
+                TaskCard(
+                  task = task,
+                  onToggle = { onToggle(task) },
+                  onEdit = { onEdit(task) },
+                  onMoveUp = { onMoveUp(task) },
+                  onMoveDown = { onMoveDown(task) },
+                )
+              }
             }
             item { Spacer(Modifier.height(4.dp)) }
           }
@@ -111,12 +139,58 @@ fun HomeScreen(
             )
           }
           items(completed, key = { it.id }) { task ->
-            TaskCard(task = task, onToggle = { onToggle(task) }, onDelete = { onDelete(task) })
+            SwipeToDeleteWrapper(onDelete = { onDelete(task) }) {
+              TaskCard(
+                task = task,
+                onToggle = { onToggle(task) },
+                onEdit = { onEdit(task) },
+                onMoveUp = {},
+                onMoveDown = {},
+              )
+            }
           }
         }
       }
       item { Spacer(Modifier.height(80.dp)) }
     }
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeToDeleteWrapper(onDelete: () -> Unit, content: @Composable () -> Unit) {
+  val dismissState =
+    rememberSwipeToDismissBoxState(
+      confirmValueChange = { value ->
+        if (value == SwipeToDismissBoxValue.EndToStart) {
+          onDelete()
+          true
+        } else false
+      },
+      positionalThreshold = { it * 0.4f },
+    )
+  SwipeToDismissBox(
+    state = dismissState,
+    backgroundContent = {
+      val fraction = dismissState.progress
+      val isSwipingToDelete = dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart
+      val bgColor =
+        if (isSwipingToDelete) PriorityHigh.copy(alpha = (fraction * 2f).coerceIn(0f, 1f))
+        else Color.Transparent
+      Box(
+        modifier =
+          Modifier.fillMaxSize()
+            .clip(RoundedCornerShape(14.dp))
+            .background(bgColor)
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.CenterEnd,
+      ) {
+        if (isSwipingToDelete) Text("🗑", fontSize = 20.sp)
+      }
+    },
+    enableDismissFromStartToEnd = false,
+  ) {
+    content()
   }
 }
 
@@ -201,8 +275,11 @@ private fun PrioritySectionHeader(priority: Priority) {
 fun TaskCard(
   task: Task,
   onToggle: () -> Unit,
-  onDelete: () -> Unit,
+  onEdit: () -> Unit,
+  onMoveUp: () -> Unit,
+  onMoveDown: () -> Unit,
 ) {
+  val isDark = isSystemInDarkTheme()
   val priorityColor =
     when {
       task.isCompleted -> PriorityCompleted
@@ -214,28 +291,35 @@ fun TaskCard(
     animateColorAsState(
       targetValue =
         when {
-          task.isCompleted -> PriorityCompletedContainer
-          task.priority == Priority.HIGH -> PriorityHighContainer
-          task.priority == Priority.MEDIUM -> PriorityMediumContainer
-          else -> PriorityLowContainer
+          task.isCompleted ->
+            if (isDark) PriorityCompletedContainerDark else PriorityCompletedContainer
+          task.priority == Priority.HIGH ->
+            if (isDark) PriorityHighContainerDark else PriorityHighContainer
+          task.priority == Priority.MEDIUM ->
+            if (isDark) PriorityMediumContainerDark else PriorityMediumContainer
+          else -> if (isDark) PriorityLowContainerDark else PriorityLowContainer
         },
       animationSpec = tween(300),
     )
 
+  val now = Clock.System.now().toEpochMilliseconds()
+  val isOverdue = task.dueDate != null && !task.isCompleted && task.dueDate < now
+
   Card(
+    onClick = onEdit,
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(14.dp),
     colors = CardDefaults.cardColors(containerColor = containerColor),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Row(
-      modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+      modifier =
+        Modifier.fillMaxWidth()
+          .padding(start = 4.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      Box(
-        modifier = Modifier.size(4.dp).clip(CircleShape).background(priorityColor),
-      )
-      Spacer(Modifier.width(4.dp))
+      DragHandle(onMoveUp = onMoveUp, onMoveDown = onMoveDown)
+      Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(priorityColor))
       Checkbox(
         checked = task.isCompleted,
         onCheckedChange = { onToggle() },
@@ -263,12 +347,96 @@ fun TaskCard(
             maxLines = 2,
           )
         }
-      }
-      TextButton(onClick = onDelete, contentPadding = PaddingValues(4.dp)) {
-        Text("✕", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+        if (task.dueDate != null) {
+          Spacer(Modifier.height(4.dp))
+          DueDateBadge(
+            dueDate = task.dueDate,
+            isOverdue = isOverdue,
+            isCompleted = task.isCompleted,
+          )
+        }
       }
     }
   }
+}
+
+@Composable
+private fun DueDateBadge(dueDate: Long, isOverdue: Boolean, isCompleted: Boolean) {
+  val color =
+    when {
+      isCompleted -> MaterialTheme.colorScheme.onSurfaceVariant
+      isOverdue -> PriorityHigh
+      else -> MaterialTheme.colorScheme.primary
+    }
+  val label =
+    if (isOverdue && !isCompleted) "Overdue · ${formatDueDate(dueDate)}"
+    else formatDueDate(dueDate)
+  Text(
+    text = "📅 $label",
+    style = MaterialTheme.typography.labelSmall,
+    color = color,
+    fontWeight = if (isOverdue && !isCompleted) FontWeight.SemiBold else FontWeight.Normal,
+  )
+}
+
+private fun formatDueDate(epochMillis: Long): String {
+  val tz = TimeZone.currentSystemDefault()
+  val date = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(tz).date
+  val today = Clock.System.now().toLocalDateTime(tz).date
+  val tomorrow = today.plus(DatePeriod(days = 1))
+  return when (date) {
+    today -> "Today"
+    tomorrow -> "Tomorrow"
+    else -> {
+      val m = date.month.name
+      val month = m[0] + m.substring(1).lowercase()
+      "$month ${date.dayOfMonth}"
+    }
+  }
+}
+
+@Composable
+private fun DragHandle(onMoveUp: () -> Unit, onMoveDown: () -> Unit) {
+  var accumulatedY by remember { mutableFloatStateOf(0f) }
+  var isDragging by remember { mutableStateOf(false) }
+  Text(
+    text = "⠿",
+    fontSize = 14.sp,
+    color =
+      MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (isDragging) 0.8f else 0.35f),
+    modifier =
+      Modifier.padding(horizontal = 6.dp).pointerInput(onMoveUp, onMoveDown) {
+        val threshold = 48.dp.toPx()
+        detectDragGesturesAfterLongPress(
+          onDragStart = {
+            isDragging = true
+            accumulatedY = 0f
+          },
+          onDrag = { change, dragAmount ->
+            change.consume()
+            accumulatedY += dragAmount.y
+            when {
+              accumulatedY > threshold -> {
+                onMoveDown()
+                accumulatedY = 0f
+              }
+              accumulatedY < -threshold -> {
+                onMoveUp()
+                accumulatedY = 0f
+              }
+            }
+          },
+          onDragEnd = {
+            isDragging = false
+            accumulatedY = 0f
+          },
+          onDragCancel = {
+            isDragging = false
+            accumulatedY = 0f
+          },
+        )
+      },
+  )
 }
 
 @Composable
