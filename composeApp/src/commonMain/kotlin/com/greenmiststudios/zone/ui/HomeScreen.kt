@@ -173,7 +173,7 @@ private fun SwipeToDeleteWrapper(onDelete: () -> Unit, content: @Composable () -
     state = dismissState,
     backgroundContent = {
       val fraction = dismissState.progress
-      val isSwipingToDelete = dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart
+      val isSwipingToDelete = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
       val bgColor =
         if (isSwipingToDelete) PriorityHigh.copy(alpha = (fraction * 2f).coerceIn(0f, 1f))
         else Color.Transparent

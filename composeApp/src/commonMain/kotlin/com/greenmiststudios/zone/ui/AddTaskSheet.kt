@@ -46,6 +46,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.greenmiststudios.zone.Priority
 import com.greenmiststudios.zone.Task
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -232,11 +238,10 @@ private fun DueDateRow(dueDate: Long?, onPickDate: () -> Unit, onClearDate: () -
 }
 
 private fun formatDueDateShort(epochMillis: Long): String {
-  val tz = kotlinx.datetime.TimeZone.currentSystemDefault()
-  val date =
-    kotlinx.datetime.Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(tz).date
-  val today = kotlinx.datetime.Clock.System.now().toLocalDateTime(tz).date
-  val tomorrow = today.plus(kotlinx.datetime.DatePeriod(days = 1))
+  val tz = TimeZone.currentSystemDefault()
+  val date = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(tz).date
+  val today = Clock.System.now().toLocalDateTime(tz).date
+  val tomorrow = today.plus(DatePeriod(days = 1))
   return when (date) {
     today -> "Today"
     tomorrow -> "Tomorrow"
