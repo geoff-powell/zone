@@ -16,7 +16,7 @@ class InMemoryTaskRepository : TaskRepository {
     title: String,
     description: String?,
     priority: Priority,
-    dueDate: Long?,
+    dueDate: Long?
   ) {
     _tasks.update { current ->
       val sortOrder = current.count { it.priority == priority && !it.isCompleted }.toLong()
@@ -29,7 +29,7 @@ class InMemoryTaskRepository : TaskRepository {
             priority = priority,
             createdAt = Clock.System.now().toEpochMilliseconds(),
             dueDate = dueDate,
-            sortOrder = sortOrder,
+            sortOrder = sortOrder
           ))
         .taskOrder()
     }
@@ -40,7 +40,7 @@ class InMemoryTaskRepository : TaskRepository {
     title: String,
     description: String?,
     priority: Priority,
-    dueDate: Long?,
+    dueDate: Long?
   ) {
     _tasks.update { current ->
       current
@@ -50,7 +50,7 @@ class InMemoryTaskRepository : TaskRepository {
               title = title,
               description = description,
               priority = priority,
-              dueDate = dueDate,
+              dueDate = dueDate
             )
           else task
         }

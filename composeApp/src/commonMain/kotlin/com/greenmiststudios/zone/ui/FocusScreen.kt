@@ -47,7 +47,7 @@ fun AllDoneScreen(onBack: () -> Unit) {
         .safeContentPadding()
         .padding(horizontal = 32.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center,
+    verticalArrangement = Arrangement.Center
   ) {
     Text("🎉", fontSize = 72.sp)
     Spacer(Modifier.height(24.dp))
@@ -56,14 +56,14 @@ fun AllDoneScreen(onBack: () -> Unit) {
       fontSize = 32.sp,
       fontWeight = FontWeight.Bold,
       color = MaterialTheme.colorScheme.onSurface,
-      textAlign = TextAlign.Center,
+      textAlign = TextAlign.Center
     )
     Spacer(Modifier.height(8.dp))
     Text(
       text = "You crushed it. Time for a break.",
       style = MaterialTheme.typography.bodyLarge,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
-      textAlign = TextAlign.Center,
+      textAlign = TextAlign.Center
     )
     Spacer(Modifier.height(40.dp))
     Button(
@@ -72,8 +72,8 @@ fun AllDoneScreen(onBack: () -> Unit) {
       colors =
         ButtonDefaults.buttonColors(
           containerColor = MaterialTheme.colorScheme.primaryContainer,
-          contentColor = MaterialTheme.colorScheme.primary,
-        ),
+          contentColor = MaterialTheme.colorScheme.primary
+        )
     ) {
       Text("Back to Home", fontWeight = FontWeight.SemiBold)
     }
@@ -86,7 +86,7 @@ fun FocusScreen(
   nextTask: Task?,
   onComplete: () -> Unit,
   onSkip: () -> Unit,
-  onBack: () -> Unit,
+  onBack: () -> Unit
 ) {
   val priorityColor =
     when (task.priority) {
@@ -106,7 +106,7 @@ fun FocusScreen(
       Modifier.fillMaxSize()
         .background(MaterialTheme.colorScheme.background)
         .safeContentPadding()
-        .padding(horizontal = 24.dp),
+        .padding(horizontal = 24.dp)
   ) {
     Spacer(Modifier.height(8.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -114,14 +114,14 @@ fun FocusScreen(
         Icon(
           Icons.Filled.ArrowBack,
           contentDescription = "Back",
-          tint = MaterialTheme.colorScheme.onSurfaceVariant,
+          tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
       Text(
         text = "Focus Mode",
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = MaterialTheme.colorScheme.onSurface
       )
     }
 
@@ -130,7 +130,7 @@ fun FocusScreen(
     Text(
       text = "Right now",
       style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Spacer(Modifier.height(4.dp))
 
@@ -139,9 +139,9 @@ fun FocusScreen(
       shape = RoundedCornerShape(20.dp),
       colors =
         CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.surface,
+          containerColor = MaterialTheme.colorScheme.surface
         ),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
       Column(modifier = Modifier.padding(24.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -151,7 +151,7 @@ fun FocusScreen(
             text = priorityLabel,
             style = MaterialTheme.typography.labelMedium,
             color = priorityColor,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.SemiBold
           )
         }
         Spacer(Modifier.height(16.dp))
@@ -160,14 +160,14 @@ fun FocusScreen(
           fontSize = 24.sp,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurface,
-          lineHeight = 32.sp,
+          lineHeight = 32.sp
         )
         if (!task.description.isNullOrBlank()) {
           Spacer(Modifier.height(12.dp))
           Text(
             text = task.description,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
       }
@@ -182,8 +182,8 @@ fun FocusScreen(
       colors =
         ButtonDefaults.buttonColors(
           containerColor = MaterialTheme.colorScheme.primary,
-          contentColor = MaterialTheme.colorScheme.onPrimary,
-        ),
+          contentColor = MaterialTheme.colorScheme.onPrimary
+        )
     ) {
       Icon(Icons.Filled.Check, contentDescription = null)
       Spacer(Modifier.width(8.dp))
@@ -195,13 +195,13 @@ fun FocusScreen(
     OutlinedButton(
       onClick = onSkip,
       modifier = Modifier.fillMaxWidth().height(56.dp),
-      shape = RoundedCornerShape(16.dp),
+      shape = RoundedCornerShape(16.dp)
     ) {
       Text(
         "Skip for now",
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
       )
     }
 
@@ -211,23 +211,23 @@ fun FocusScreen(
         text = "Up next",
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 8.dp),
+        modifier = Modifier.padding(bottom = 8.dp)
       )
       Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         colors =
           CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
           ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
       ) {
         Text(
           text = nextTask.title,
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-          maxLines = 2,
+          maxLines = 2
         )
       }
     } else {
@@ -237,7 +237,7 @@ fun FocusScreen(
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
       )
     }
   }

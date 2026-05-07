@@ -8,7 +8,7 @@ data class Task(
   val priority: Priority,
   val createdAt: Long,
   val dueDate: Long? = null,
-  val sortOrder: Long = 0L,
+  val sortOrder: Long = 0L
 )
 
 enum class Priority(val value: Long) {

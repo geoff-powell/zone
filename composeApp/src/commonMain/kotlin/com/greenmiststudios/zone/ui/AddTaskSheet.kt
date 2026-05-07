@@ -59,7 +59,7 @@ fun AddTaskSheet(
   task: Task? = null,
   onDismiss: () -> Unit,
   onSave: (title: String, description: String?, priority: Priority, dueDate: Long?) -> Unit,
-  sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+  sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
   val isEditMode = task != null
   var title by remember(task?.id) { mutableStateOf(task?.title ?: "") }
@@ -85,7 +85,7 @@ fun AddTaskSheet(
       },
       dismissButton = {
         TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-      },
+      }
     ) {
       DatePicker(state = datePickerState)
     }
@@ -95,16 +95,16 @@ fun AddTaskSheet(
     onDismissRequest = onDismiss,
     sheetState = sheetState,
     containerColor = MaterialTheme.colorScheme.surface,
-    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
   ) {
     Column(
-      modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).imePadding(),
+      modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).imePadding()
     ) {
       Text(
         text = if (isEditMode) "Edit Task" else "New Task",
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = MaterialTheme.colorScheme.onSurface
       )
       Spacer(Modifier.height(20.dp))
 
@@ -117,7 +117,7 @@ fun AddTaskSheet(
         },
         shape = RoundedCornerShape(12.dp),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
       )
 
       Spacer(Modifier.height(12.dp))
@@ -141,11 +141,11 @@ fun AddTaskSheet(
                   title.trim(),
                   description.trim().ifBlank { null },
                   selectedPriority,
-                  selectedDueDate,
+                  selectedDueDate
                 )
               }
             }
-          ),
+          )
       )
 
       Spacer(Modifier.height(20.dp))
@@ -154,7 +154,7 @@ fun AddTaskSheet(
         text = "Priority",
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = MaterialTheme.colorScheme.onSurface
       )
       Spacer(Modifier.height(10.dp))
 
@@ -164,7 +164,7 @@ fun AddTaskSheet(
             priority = priority,
             selected = selectedPriority == priority,
             onClick = { selectedPriority = priority },
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f)
           )
         }
       }
@@ -174,7 +174,7 @@ fun AddTaskSheet(
       DueDateRow(
         dueDate = selectedDueDate,
         onPickDate = { showDatePicker = true },
-        onClearDate = { selectedDueDate = null },
+        onClearDate = { selectedDueDate = null }
       )
 
       Spacer(Modifier.height(24.dp))
@@ -186,7 +186,7 @@ fun AddTaskSheet(
               title.trim(),
               description.trim().ifBlank { null },
               selectedPriority,
-              selectedDueDate,
+              selectedDueDate
             )
           }
         },
@@ -198,13 +198,13 @@ fun AddTaskSheet(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White,
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-          ),
+            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+          )
       ) {
         Text(
           if (isEditMode) "Save Changes" else "Add Task",
           fontWeight = FontWeight.SemiBold,
-          fontSize = 16.sp,
+          fontSize = 16.sp
         )
       }
 
@@ -218,14 +218,14 @@ private fun DueDateRow(dueDate: Long?, onPickDate: () -> Unit, onClearDate: () -
   Row(verticalAlignment = Alignment.CenterVertically) {
     TextButton(
       onClick = onPickDate,
-      shape = RoundedCornerShape(10.dp),
+      shape = RoundedCornerShape(10.dp)
     ) {
       Text(
         text = if (dueDate != null) "📅 ${formatDueDateShort(dueDate)}" else "📅 Add due date",
         style = MaterialTheme.typography.bodyMedium,
         color =
           if (dueDate != null) MaterialTheme.colorScheme.primary
-          else MaterialTheme.colorScheme.onSurfaceVariant,
+          else MaterialTheme.colorScheme.onSurfaceVariant
       )
     }
     if (dueDate != null) {
@@ -257,7 +257,7 @@ private fun PriorityChip(
   priority: Priority,
   selected: Boolean,
   onClick: () -> Unit,
-  modifier: Modifier = Modifier,
+  modifier: Modifier = Modifier
 ) {
   val (color, label) =
     when (priority) {
@@ -276,7 +276,7 @@ private fun PriorityChip(
         .border(width = 1.5.dp, color = borderColor, shape = RoundedCornerShape(10.dp))
         .clickable(onClick = onClick)
         .padding(vertical = 10.dp),
-    contentAlignment = Alignment.Center,
+    contentAlignment = Alignment.Center
   ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
@@ -285,7 +285,7 @@ private fun PriorityChip(
         text = label,
         style = MaterialTheme.typography.labelMedium,
         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-        color = if (selected) color else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = if (selected) color else MaterialTheme.colorScheme.onSurfaceVariant
       )
     }
   }

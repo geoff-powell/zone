@@ -24,7 +24,7 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
     title: String,
     description: String?,
     priority: Priority,
-    dueDate: Long?,
+    dueDate: Long?
   ) {
     withContext(Dispatchers.Default) {
       queries.insertTask(
@@ -34,7 +34,7 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
         priority = priority.value,
         created_at = Clock.System.now().toEpochMilliseconds(),
         due_date = dueDate,
-        sort_order = 0L,
+        sort_order = 0L
       )
     }
   }
@@ -44,7 +44,7 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
     title: String,
     description: String?,
     priority: Priority,
-    dueDate: Long?,
+    dueDate: Long?
   ) {
     withContext(Dispatchers.Default) {
       queries.updateTask(title, description, priority.value, dueDate, id)
@@ -74,6 +74,6 @@ class SqlDelightTaskRepository(database: ZoneDatabase) : TaskRepository {
       priority = Priority.fromValue(priority),
       createdAt = created_at,
       dueDate = due_date,
-      sortOrder = sort_order,
+      sortOrder = sort_order
     )
 }

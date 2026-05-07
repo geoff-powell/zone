@@ -42,7 +42,7 @@ private val ZoneLightColorScheme =
     surfaceVariant = Color(0xFFF0EFFF),
     onSurfaceVariant = Color(0xFF4B4B6B),
     outline = Color(0xFFD0CEF0),
-    error = PriorityHigh,
+    error = PriorityHigh
   )
 
 private val ZoneDarkColorScheme =
@@ -60,7 +60,7 @@ private val ZoneDarkColorScheme =
     surfaceVariant = Color(0xFF252538),
     onSurfaceVariant = Color(0xFFAAAAAC),
     outline = Color(0xFF3D3D5C),
-    error = Color(0xFFFF7575),
+    error = Color(0xFFFF7575)
   )
 
 @Composable
@@ -68,6 +68,6 @@ fun ZoneTheme(content: @Composable () -> Unit) {
   val isDark = isSystemInDarkTheme()
   MaterialTheme(
     colorScheme = if (isDark) ZoneDarkColorScheme else ZoneLightColorScheme,
-    content = content,
+    content = content
   )
 }

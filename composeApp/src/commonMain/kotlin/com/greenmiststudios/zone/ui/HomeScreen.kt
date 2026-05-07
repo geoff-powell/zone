@@ -75,7 +75,7 @@ fun HomeScreen(
   onAddClick: () -> Unit,
   onFocusClick: () -> Unit,
   onMoveUp: (Task) -> Unit,
-  onMoveDown: (Task) -> Unit,
+  onMoveDown: (Task) -> Unit
 ) {
   val total = tasks.size
   val done = tasks.count { it.isCompleted }
@@ -87,17 +87,17 @@ fun HomeScreen(
         onClick = onAddClick,
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = Color.White,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(16.dp)
       ) {
         Icon(Icons.Filled.Add, contentDescription = "Add task")
       }
     },
-    containerColor = MaterialTheme.colorScheme.background,
+    containerColor = MaterialTheme.colorScheme.background
   ) { innerPadding ->
     LazyColumn(
       modifier = Modifier.fillMaxSize().safeContentPadding().padding(innerPadding),
       contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-      verticalArrangement = Arrangement.spacedBy(8.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
       item {
         HomeHeader(done = done, total = total, progress = progress, onFocusClick = onFocusClick)
@@ -121,7 +121,7 @@ fun HomeScreen(
                   onToggle = { onToggle(task) },
                   onEdit = { onEdit(task) },
                   onMoveUp = { onMoveUp(task) },
-                  onMoveDown = { onMoveDown(task) },
+                  onMoveDown = { onMoveDown(task) }
                 )
               }
             }
@@ -135,7 +135,7 @@ fun HomeScreen(
               text = "Completed",
               style = MaterialTheme.typography.labelMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              modifier = Modifier.padding(vertical = 4.dp),
+              modifier = Modifier.padding(vertical = 4.dp)
             )
           }
           items(completed, key = { it.id }) { task ->
@@ -145,7 +145,7 @@ fun HomeScreen(
                 onToggle = { onToggle(task) },
                 onEdit = { onEdit(task) },
                 onMoveUp = {},
-                onMoveDown = {},
+                onMoveDown = {}
               )
             }
           }
@@ -167,7 +167,7 @@ private fun SwipeToDeleteWrapper(onDelete: () -> Unit, content: @Composable () -
           true
         } else false
       },
-      positionalThreshold = { it * 0.4f },
+      positionalThreshold = { it * 0.4f }
     )
   SwipeToDismissBox(
     state = dismissState,
@@ -183,12 +183,12 @@ private fun SwipeToDeleteWrapper(onDelete: () -> Unit, content: @Composable () -
             .clip(RoundedCornerShape(14.dp))
             .background(bgColor)
             .padding(horizontal = 20.dp),
-        contentAlignment = Alignment.CenterEnd,
+        contentAlignment = Alignment.CenterEnd
       ) {
         if (isSwipingToDelete) Text("🗑", fontSize = 20.sp)
       }
     },
-    enableDismissFromStartToEnd = false,
+    enableDismissFromStartToEnd = false
   ) {
     content()
   }
@@ -199,25 +199,25 @@ private fun HomeHeader(
   done: Int,
   total: Int,
   progress: Float,
-  onFocusClick: () -> Unit,
+  onFocusClick: () -> Unit
 ) {
   Column {
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically,
+      verticalAlignment = Alignment.CenterVertically
     ) {
       Column {
         Text(
           text = "Zone",
           fontSize = 28.sp,
           fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.primary,
+          color = MaterialTheme.colorScheme.primary
         )
         Text(
           text = if (total == 0) "All clear! Add a task." else "$done of $total tasks done",
           style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
       if (total > done) {
@@ -226,9 +226,9 @@ private fun HomeHeader(
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.primaryContainer,
-              contentColor = MaterialTheme.colorScheme.primary,
+              contentColor = MaterialTheme.colorScheme.primary
             ),
-          shape = RoundedCornerShape(12.dp),
+          shape = RoundedCornerShape(12.dp)
         ) {
           Text("⚡ Focus", fontWeight = FontWeight.SemiBold)
         }
@@ -242,7 +242,7 @@ private fun HomeHeader(
         modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
         color = MaterialTheme.colorScheme.primary,
         trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        strokeCap = StrokeCap.Round,
+        strokeCap = StrokeCap.Round
       )
     }
   }
@@ -258,7 +258,7 @@ private fun PrioritySectionHeader(priority: Priority) {
     }
   Row(
     verticalAlignment = Alignment.CenterVertically,
-    modifier = Modifier.padding(vertical = 4.dp),
+    modifier = Modifier.padding(vertical = 4.dp)
   ) {
     Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
     Spacer(Modifier.width(8.dp))
@@ -266,7 +266,7 @@ private fun PrioritySectionHeader(priority: Priority) {
       text = label,
       style = MaterialTheme.typography.labelMedium,
       fontWeight = FontWeight.SemiBold,
-      color = color,
+      color = color
     )
   }
 }
@@ -277,7 +277,7 @@ fun TaskCard(
   onToggle: () -> Unit,
   onEdit: () -> Unit,
   onMoveUp: () -> Unit,
-  onMoveDown: () -> Unit,
+  onMoveDown: () -> Unit
 ) {
   val isDark = isSystemInDarkTheme()
   val priorityColor =
@@ -299,7 +299,7 @@ fun TaskCard(
             if (isDark) PriorityMediumContainerDark else PriorityMediumContainer
           else -> if (isDark) PriorityLowContainerDark else PriorityLowContainer
         },
-      animationSpec = tween(300),
+      animationSpec = tween(300)
     )
 
   val now = Clock.System.now().toEpochMilliseconds()
@@ -310,13 +310,13 @@ fun TaskCard(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(14.dp),
     colors = CardDefaults.cardColors(containerColor = containerColor),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
   ) {
     Row(
       modifier =
         Modifier.fillMaxWidth()
           .padding(start = 4.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
-      verticalAlignment = Alignment.CenterVertically,
+      verticalAlignment = Alignment.CenterVertically
     ) {
       DragHandle(onMoveUp = onMoveUp, onMoveDown = onMoveDown)
       Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(priorityColor))
@@ -326,8 +326,8 @@ fun TaskCard(
         colors =
           CheckboxDefaults.colors(
             checkedColor = priorityColor,
-            uncheckedColor = priorityColor,
-          ),
+            uncheckedColor = priorityColor
+          )
       )
       Column(modifier = Modifier.weight(1f)) {
         Text(
@@ -337,14 +337,14 @@ fun TaskCard(
           textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
           color =
             if (task.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant
-            else MaterialTheme.colorScheme.onSurface,
+            else MaterialTheme.colorScheme.onSurface
         )
         if (!task.description.isNullOrBlank()) {
           Text(
             text = task.description,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 2,
+            maxLines = 2
           )
         }
         if (task.dueDate != null) {
@@ -352,7 +352,7 @@ fun TaskCard(
           DueDateBadge(
             dueDate = task.dueDate,
             isOverdue = isOverdue,
-            isCompleted = task.isCompleted,
+            isCompleted = task.isCompleted
           )
         }
       }
@@ -375,7 +375,7 @@ private fun DueDateBadge(dueDate: Long, isOverdue: Boolean, isCompleted: Boolean
     text = "📅 $label",
     style = MaterialTheme.typography.labelSmall,
     color = color,
-    fontWeight = if (isOverdue && !isCompleted) FontWeight.SemiBold else FontWeight.Normal,
+    fontWeight = if (isOverdue && !isCompleted) FontWeight.SemiBold else FontWeight.Normal
   )
 }
 
@@ -433,9 +433,9 @@ private fun DragHandle(onMoveUp: () -> Unit, onMoveDown: () -> Unit) {
           onDragCancel = {
             isDragging = false
             accumulatedY = 0f
-          },
+          }
         )
-      },
+      }
   )
 }
 
@@ -444,7 +444,7 @@ private fun EmptyState() {
   Column(
     modifier = Modifier.fillMaxWidth().padding(vertical = 64.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center,
+    verticalArrangement = Arrangement.Center
   ) {
     Text("🎉", fontSize = 48.sp)
     Spacer(Modifier.height(12.dp))
@@ -452,12 +452,12 @@ private fun EmptyState() {
       text = "Brain is clear!",
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.SemiBold,
-      color = MaterialTheme.colorScheme.onSurface,
+      color = MaterialTheme.colorScheme.onSurface
     )
     Text(
       text = "Tap + to add your first task",
       style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      color = MaterialTheme.colorScheme.onSurfaceVariant
     )
   }
 }

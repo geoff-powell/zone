@@ -58,7 +58,7 @@ fun App(taskRepository: TaskRepository) {
           },
           onMoveDown = { task ->
             scope.launch { moveTask(task, incomplete, up = false, taskRepository) }
-          },
+          }
         )
       }
       is Screen.Focus -> {
@@ -76,7 +76,7 @@ fun App(taskRepository: TaskRepository) {
               val nextIndex = incomplete.indexOf(focusTask) + 1
               if (nextIndex >= incomplete.size) screen = Screen.Home
             },
-            onBack = { screen = Screen.Home },
+            onBack = { screen = Screen.Home }
           )
         }
       }
@@ -101,7 +101,7 @@ fun App(taskRepository: TaskRepository) {
           }
           showAddSheet = false
           editingTask = null
-        },
+        }
       )
     }
   }
@@ -111,7 +111,7 @@ private suspend fun moveTask(
   task: Task,
   group: List<Task>,
   up: Boolean,
-  repository: TaskRepository,
+  repository: TaskRepository
 ) {
   val priorityGroup = group.filter { it.priority == task.priority }
   val index = priorityGroup.indexOfFirst { it.id == task.id }
