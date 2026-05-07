@@ -11,9 +11,9 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
-
+    val repository = TaskRepositoryFactory(applicationContext).create()
     setContent {
-      App()
+      App(repository)
     }
   }
 }
@@ -21,5 +21,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 private fun AppAndroidPreview() {
-  App()
+  App(InMemoryTaskRepository())
 }
